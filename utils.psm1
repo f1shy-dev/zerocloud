@@ -79,45 +79,24 @@ function Disable-TCC {
     & $nvsmi -g $gpu -fdm 0
 }
 
-function Enable-Audio {
-    Write-Output "Enabling Audio Service"
-    Set-Service -Name "Audiosrv" -StartupType Automatic
-    Start-Service Audiosrv
-}
-
 function Install-VirtualAudio {
-    $compressed_file = "VBCABLE_Driver_Pack43.zip"
-    $driver_folder = "VBCABLE_Driver_Pack43"
-    $driver_inf = "vbMmeCable64_win7.inf"
-    $hardward_id = "VBAudioVACWDM"
-
+    $compressed_file = "vbcable.zip"
     Write-Output "Downloading Virtual Audio Driver"
-    $webClient.DownloadFile("http://vbaudio.jcedeveloppement.com/Download_CABLE/VBCABLE_Driver_Pack43.zip", "$PSScriptRoot\$compressed_file")
+    $webClient.DownloadFile("https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip", "$PSScriptRoot\$compressed_file")
     Unblock-File -Path "$PSScriptRoot\$compressed_file"
 
-    Write-Output "Extracting Virtual Audio Driver"
-    Expand-Archive "$PSScriptRoot\$compressed_file" -DestinationPath "$PSScriptRoot\$driver_folder" -Force
+    Write-Host "Installing VBCABLE..."
+    Expand-Archive -Path "$PSScriptRoot\$compressed_file" -DestinationPath "$PSScriptRoot\vbcable"
+    Start-Process -FilePath "$PSScriptRoot\vbcable\VBCABLE_Setup_x64.exe" -ArgumentList "-i","-h" -NoNewWindow -Wait
 
-    $wdk_installer = "wdksetup.exe"
-    $devcon = "C:\Program Files (x86)\Windows Kits\10\Tools\x64\devcon.exe"
+    $osType = Get-CimInstance -ClassName Win32_OperatingSystem
 
-    Write-Output "Downloading Windows Development Kit installer"
-    $webClient.DownloadFile("http://go.microsoft.com/fwlink/p/?LinkId=526733", "$PSScriptRoot\$wdk_installer")
+    if($osType.ProductType -eq 3) {
+        Write-Host "Applying Audio service fix for Windows Server..."
+        New-ItemProperty "hklm:\SYSTEM\CurrentControlSet\Control" -Name "ServicesPipeTimeout" -Value 600000 -PropertyType "DWord" | Out-Null
+        Set-Service -Name Audiosrv -StartupType Automatic | Out-Null
+    }
 
-    Write-Output "Downloading and installing Windows Development Kit"
-    Start-Process -FilePath "$PSScriptRoot\$wdk_installer" -ArgumentList "/S" -Wait
-
-    $cert = "vb_cert.cer"
-    $url = "https://github.com/ecalder6/azure-gaming/raw/master/$cert"
-
-    Write-Output "Downloading vb certificate from $url"
-    $webClient.DownloadFile($url, "$PSScriptRoot\$cert")
-
-    Write-Output "Importing vb certificate"
-    Import-Certificate -FilePath "$PSScriptRoot\$cert" -CertStoreLocation "cert:\LocalMachine\TrustedPublisher"
-
-    Write-Output "Installing virtual audio driver"
-    Start-Process -FilePath $devcon -ArgumentList "install", "$PSScriptRoot\$driver_folder\$driver_inf", $hardward_id -Wait
 }
 
 function Install-Chocolatey {

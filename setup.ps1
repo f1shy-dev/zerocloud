@@ -29,8 +29,6 @@ if(!$RebootSkip) {
 
     Disable-ScheduledTasks
     Disable-Devices
-    Disable-TCC
-    Enable-Audio
     Install-VirtualAudio
     Install-GFE
     Install-VCRedist
@@ -44,6 +42,7 @@ if(!$RebootSkip) {
     if(Get-ScheduledTask | Where-Object {$_.TaskName -like "ZCSetup" }) {
         Unregister-ScheduledTask -TaskName "ZCSetup" -Confirm:$false
     }
+    Disable-TCC
     Install-GFEPatches
     Disable-OtherGPUs
     Install-WiFi
