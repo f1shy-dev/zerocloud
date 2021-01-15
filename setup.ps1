@@ -11,11 +11,11 @@ function Get-Script ($script_name) {
 
     $webClient = new-object System.Net.WebClient
     $webClient.DownloadFile($url, "C:\$script_name")
+    Import-Module "C:\$script_name"
 }
 
 Get-Script "utils.psm1"
 Get-Script "Patcher.ps1"
-Import-Module "C:\$script_name"
 
 if(!$RebootSkip) {
     Update-Firewall
@@ -52,5 +52,3 @@ if(!$RebootSkip) {
     Add-AutoLogin $admin_username $admin_password
     Restart-Computer
 }
-
-
