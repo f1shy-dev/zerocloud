@@ -197,7 +197,7 @@ function Install-VCRedist {
 }
 
 function Install-GPUDrivers {
-    $webClient.DownloadFile("https://download.microsoft.com/download/b/8/f/b8f5ecec-b8f9-47de-b007-ac40adc88dc8/442.06_grid_win10_64bit_international_whql.exe", "$PSScriptRoot\redist.exe")
+    $webClient.DownloadFile("https://download.microsoft.com/download/b/8/f/b8f5ecec-b8f9-47de-b007-ac40adc88dc8/442.06_grid_win10_64bit_international_whql.exe", "$PSScriptRoot\Drivers.exe")
     $ExitCode = (Start-Process -FilePath "$PSScriptRoot\Drivers.exe" -ArgumentList "/s","/clean" -NoNewWindow -Wait -PassThru).ExitCode
     if($ExitCode -eq 0) {
         Write-Host "NVIDIA GRID GPU drivers installed." -ForegroundColor Green 
