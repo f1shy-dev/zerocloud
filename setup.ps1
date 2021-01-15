@@ -10,11 +10,11 @@ function Get-Script ($script_name) {
     [Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 
     $webClient = new-object System.Net.WebClient
-    $webClient.DownloadFile($url, "C:\$script_name")
-    Import-Module "C:\$script_name"
+    $webClient.DownloadFile($url, "$PSScriptRoot\$script_name")
 }
 
 Get-Script "utils.psm1"
+Import-Module "$PSScriptRoot\utils.psm1"
 Get-Script "Patcher.ps1"
 
 if(!$RebootSkip) {
