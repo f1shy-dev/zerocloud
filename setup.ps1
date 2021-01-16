@@ -36,6 +36,7 @@ if(!$RebootSkip) {
     $trigger = New-ScheduledTaskTrigger -AtLogon -RandomDelay "00:00:30"
     $principal = New-ScheduledTaskPrincipal -GroupId "BUILTIN\Administrators" -RunLevel Highest
     Register-ScheduledTask -Action $action -Trigger $trigger -Principal $principal -TaskName "ZCSetup" -Description "ZCSetup" | Out-Null
+    Restart-Computer
 } else {
     Import-Module "$PSScriptRoot\utils.psm1"
     if(Get-ScheduledTask | Where-Object {$_.TaskName -like "ZCSetup" }) {
