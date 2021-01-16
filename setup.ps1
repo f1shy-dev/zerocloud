@@ -13,11 +13,10 @@ function Get-Script ($script_name) {
     $webClient.DownloadFile($url, "$PSScriptRoot\$script_name")
 }
 
-Get-Script "utils.psm1"
-Import-Module "$PSScriptRoot\utils.psm1"
-Get-Script "Patcher.ps1"
-
 if(!$RebootSkip) {
+    Get-Script "utils.psm1"
+    Import-Module "$PSScriptRoot\utils.psm1"
+    Get-Script "Patcher.ps1"
     Update-Firewall
     Disable-Defender
     Disable-IPv6To4
@@ -28,17 +27,17 @@ if(!$RebootSkip) {
     Join-Network $network
 
     Disable-ScheduledTasks
-    Disable-Devices
     Install-VirtualAudio
     Install-GFE
     Install-VCRedist
     Install-GPUDrivers
-    $script = "-Command `"Set-ExecutionPolicy Unrestricted; & '$PSScriptRoot\setup.ps1'`" -RebootSkip";
+    $script = "powershell -ExecutionPolicy Bypass -File `"'$PSScriptRoot\setup.ps1'`" -RebootSkip";
     $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $script
     $trigger = New-ScheduledTaskTrigger -AtLogon -RandomDelay "00:00:30"
     $principal = New-ScheduledTaskPrincipal -GroupId "BUILTIN\Administrators" -RunLevel Highest
     Register-ScheduledTask -Action $action -Trigger $trigger -Principal $principal -TaskName "ZCSetup" -Description "ZCSetup" | Out-Null
 } else {
+    Import-Module "$PSScriptRoot\utils.psm1"
     if(Get-ScheduledTask | Where-Object {$_.TaskName -like "ZCSetup" }) {
         Unregister-ScheduledTask -TaskName "ZCSetup" -Confirm:$false
     }

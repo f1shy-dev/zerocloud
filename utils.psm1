@@ -8,23 +8,7 @@ function Disable-InternetExplorerESC {
     Set-ItemProperty -Path $AdminKey -Name "IsInstalled" -Value 0 -Force
     Set-ItemProperty -Path $UserKey -Name "IsInstalled" -Value 0 -Force
     Stop-Process -Name Explorer -Force
-    Write-Output "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
-}
-
-function Update-Windows {
-    $url = "https://gallery.technet.microsoft.com/scriptcenter/Execute-Windows-Update-fc6acb16/file/144365/1/PS_WinUpdate.zip"
-    $compressed_file = "PS_WinUpdate.zip"
-    $update_script = "PS_WinUpdate.ps1"
-
-    Write-Output "Downloading Windows Update Powershell Script from $url"
-    $webClient.DownloadFile($url, "$PSScriptRoot\$compressed_file")
-    Unblock-File -Path "$PSScriptRoot\$compressed_file"
-
-    Write-Output "Extracting Windows Update Powershell Script"
-    Expand-Archive "$PSScriptRoot\$compressed_file" -DestinationPath "$PSScriptRoot\" -Force
-
-    Write-Output "Running Windows Update"
-    Invoke-Expression $PSScriptRoot\$update_script
+    Write-Output "IE Enhanced Security Configuration (ESC) has been disabled."
 }
 
 function Update-Firewall {
@@ -56,22 +40,22 @@ function Edit-VisualEffectsRegistry {
     Set-ItemProperty -Path "Registry::\HKEY_USERS\.DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2
 }
 
-function Disable-Devices {
-    $url = "https://gallery.technet.microsoft.com/PowerShell-Device-60d73bb0/file/147248/2/DeviceManagement.zip"
-    $compressed_file = "DeviceManagement.zip"
-    $extract_folder = "DeviceManagement"
+# function Disable-Devices {
+#     $url = "https://gallery.technet.microsoft.com/PowerShell-Device-60d73bb0/file/147248/2/DeviceManagement.zip"
+#     $compressed_file = "DeviceManagement.zip"
+#     $extract_folder = "DeviceManagement"
 
-    Write-Output "Downloading Device Management Powershell Script from $url"
-    $webClient.DownloadFile($url, "$PSScriptRoot\$compressed_file")
-    Unblock-File -Path "$PSScriptRoot\$compressed_file"
+#     Write-Output "Downloading Device Management Powershell Script from $url"
+#     $webClient.DownloadFile($url, "$PSScriptRoot\$compressed_file")
+#     Unblock-File -Path "$PSScriptRoot\$compressed_file"
 
-    Write-Output "Extracting Device Management Powershell Script"
-    Expand-Archive "$PSScriptRoot\$compressed_file" -DestinationPath "$PSScriptRoot\$extract_folder" -Force
+#     Write-Output "Extracting Device Management Powershell Script"
+#     Expand-Archive "$PSScriptRoot\$compressed_file" -DestinationPath "$PSScriptRoot\$extract_folder" -Force
 
-    Write-Output "Disabling Hyper-V Video"
-    Import-Module "$PSScriptRoot\$extract_folder\DeviceManagement.psd1"
-    Get-Device | Where-Object -Property Name -Like "Microsoft Hyper-V Video" | Disable-Device -Confirm:$false
-}
+#     Write-Output "Disabling Hyper-V Video"
+#     Import-Module "$PSScriptRoot\$extract_folder\DeviceManagement.psd1"
+#     Get-Device | Where-Object -Property Name -Like "Microsoft Hyper-V Video" | Disable-Device -Confirm:$false
+# }
 
 function Disable-TCC {
     $nvsmi = "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"
@@ -205,6 +189,8 @@ function Install-GPUDrivers {
 }
 
 function Install-GFEPatches {
+    $webClient.DownloadFile("https://raw.githubusercontent.com/vishy-dev/zerocloud/master/NvFBCEnable.exe", "$PSScriptRoot\NvFBCEnable.exe")
+
     Write-Host "Enabling NVIDIA FrameBufferCopy..."
     $ExitCode = (Start-Process -FilePath "$PSScriptRoot\NvFBCEnable.exe" -ArgumentList "-enable" -NoNewWindow -Wait -PassThru).ExitCode
     if($ExitCode -ne 0) {
@@ -263,6 +249,7 @@ function Install-WiFi {
 }
 
 function Install-ResolutionFix {
+    $webClient.DownloadFile("https://raw.githubusercontent.com/vishy-dev/zerocloud/master/ResolutionFix.exe", "$PSScriptRoot\ResolutionFix.exe")
     Write-Host "Applying resolution fix..."
     $Status = @("NvAPI failed to initialize", "Failed to query GPUs", "Failed to get display count", "Failed to query displays", "Failed to set EDID")
 
