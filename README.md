@@ -4,5 +4,7 @@
 
 Based on:
 
-https://github.com/ecalder6/azure-gaming
-https://github.com/acceleration3/cloudgamestream
+[azure-gaming script](https://github.com/ecalder6/azure-gaming)
+
+[cloudgamestream script (Enables gamestream on M60 GPUs)](https://github.com/acceleration3/cloudgamestream)
+
